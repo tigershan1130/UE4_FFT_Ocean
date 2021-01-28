@@ -1,0 +1,33 @@
+#include "/Engine/Private/Common.ush"
+
+RWTexture2D<float4> Displacement;
+RWTexture2D<float4> Derivatives;
+RWTexture2D<float4> Turbulence;
+
+Texture2D<float4> TurbulenceInput;
+Texture2D<float4> Dx_Dz;
+Texture2D<float4> Dy_Dxz;
+Texture2D<float4> Dyx_Dyz;
+Texture2D<float4> Dxx_Dzz;
+
+float Lambda;
+float DeltaTime;
+
+[numthreads(8, 8, 1)]
+void FillResultTextures(uint3 id : SV_DispatchThreadID)
+{
+    float2 DxDz = Dx_Dz[id.xy].rg;
+    float2 DyDxz = Dy_Dxz[id.xy].rg;
+    float2 DyxDyz = Dyx_Dyz[id.xy].rg;
+    float2 DxxDzz = Dxx_Dzz[id.xy].rg;
+	
+    Displacement[id.xy] = float4(Lambda * DxDz.x, DyDxz.x, Lambda * DxDz.y, 1);
+    
+    //Displacement[id.xy] = float4(Lambda, DyDxz.x, Lambda * DxDz.y, 1);
+    
+    Derivatives[id.xy] = float4(DyxDyz, DxxDzz * Lambda);
+    float jacobian = (1 + Lambda * DxxDzz.x) * (1 + Lambda * DxxDzz.y) - Lambda * Lambda * DyDxz.y * DyDxz.y;
+    float4 turbulenceCal = TurbulenceInput[id.xy].r + DeltaTime * 0.5 / max(jacobian, 0.5);
+    Turbulence[id.xy] = min(jacobian, turbulenceCal.r);
+}
+

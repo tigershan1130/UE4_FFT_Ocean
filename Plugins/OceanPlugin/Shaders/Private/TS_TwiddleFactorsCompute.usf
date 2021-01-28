@@ -1,0 +1,34 @@
+// Copyright 2019 Tiger Shan. All Rights Reserved.
+#include "/Engine/Private/Common.ush"
+
+#define COHERENCY_GRANULARITY 8
+
+#define M_PI   3.1415926535897932384626433832795f
+#define M_2PI (2.0f*M_PI)
+
+//Number of samples is fixed for this release
+static const int N = 512;
+
+//number of stages
+static const int log2_N = (int) (log(N)/log(2));
+
+RWTexture2D<float4>	        OutputSurface0;
+uint Size;
+
+float2 ComplexExp(float2 a)
+{
+    return float2(cos(a.y), sin(a.y)) * exp(a.x);
+}
+
+//Generate Twiddle indices/factor texture here 
+[numthreads(1, COHERENCY_GRANULARITY, 1)]
+void TwiddleFactorsCS(uint3 id : SV_DispatchThreadID) 
+{
+    uint b = Size >> (id.x + 1);
+    float2 mult = 2 * M_PI * float2(0, 1) / Size;
+    uint i = (2 * b * (id.y / b) + id.y % b) % Size;
+    float2 twiddle = ComplexExp(-mult * ((id.y / b) * b));
+    OutputSurface0[id.xy] = float4(twiddle.x, twiddle.y, i, i + b);   
+    OutputSurface0[uint2(id.x, id.y + Size / 2)] = float4(-twiddle.x, -twiddle.y, i, i + b);	
+}
+

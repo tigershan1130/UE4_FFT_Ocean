@@ -1,0 +1,54 @@
+// Copyright 2019 Tiger Shan All Rights Reserved.
+
+#include "/Engine/Private/Common.ush"
+
+#define PI       3.1415926536f
+#define TWOPI    (2.f*PI)
+#define HALF_SQRT_2	0.7071068f
+
+Texture2D <float4>  InputTexture;
+
+RWTexture2D<float4> Dx_Dz;
+RWTexture2D<float4> Dy_Dxz;
+RWTexture2D<float4> Dyx_Dyz;
+RWTexture2D<float4> Dxx_Dzz;
+
+Texture2D<float4> H0;
+Texture2D<float4> WavesData;
+
+float Time;
+
+
+float2 ComplexMult(float2 a, float2 b)
+{
+    return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+}
+
+[numthreads(8,8, 1)]
+void CalculateAmplitudes(uint3 id : SV_DispatchThreadID)
+{
+    float4 wave = WavesData[id.xy];
+    float phase = wave.w * Time;
+    float2 exponent = float2(cos(phase), sin(phase));
+    float2 h = ComplexMult(H0[id.xy].xy, exponent)
+		+ ComplexMult(H0[id.xy].zw, float2(exponent.x, -exponent.y));
+    float2 ih = float2(-h.y, h.x);
+	
+    float2 displacementX = ih * wave.x * wave.y;
+    float2 displacementY = h;
+    float2 displacementZ = ih * wave.z * wave.y;
+		 
+    float2 displacementX_dx = -h * wave.x * wave.x * wave.y;
+    float2 displacementY_dx = ih * wave.x;
+    float2 displacementZ_dx = -h * wave.x * wave.z * wave.y;
+		 
+    float2 displacementY_dz = ih * wave.z;
+    float2 displacementZ_dz = -h * wave.z * wave.z * wave.y;
+	
+    Dx_Dz[id.xy] = float4(displacementX.x - displacementZ.y, displacementX.y + displacementZ.x, 0, 1);
+    Dy_Dxz[id.xy] = float4(displacementY.x - displacementZ_dx.y, displacementY.y + displacementZ_dx.x, 0, 1);
+    Dyx_Dyz[id.xy] = float4(displacementY_dx.x - displacementY_dz.y, displacementY_dx.y + displacementY_dz.x, 0, 1);
+    Dxx_Dzz[id.xy] = float4(displacementX_dx.x - displacementZ_dz.y, displacementX_dx.y + displacementZ_dz.x, 0, 1);
+}
+
+

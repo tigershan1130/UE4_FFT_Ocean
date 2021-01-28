@@ -1,0 +1,17 @@
+// Copyright 2019 WenQin Shan All Rights Reserved.
+#include "/Engine/Private/Common.ush"
+
+RWTexture2D<float4> H0;
+Texture2D<float4> H0K;
+
+uint Size;
+
+
+[numthreads(8,8,1)]
+void CalculateConjugatedSpectrum(uint3 id : SV_DispatchThreadID)
+{
+	float4 h0K = H0K[id.xy];
+	
+	float4 h0MinusK = H0K[uint2((Size - id.x) % Size, (Size - id.y) % Size)];
+	H0[id.xy] = float4(h0K.x, h0K.y, h0MinusK.x, -h0MinusK.y);
+}

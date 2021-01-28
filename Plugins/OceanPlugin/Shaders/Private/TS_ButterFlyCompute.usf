@@ -1,0 +1,53 @@
+// Copyright 2019 Tiger Shan All Rights Reserved.
+// https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=3&cad=rja&uact=8&ved=2ahUKEwi3wYGYt67jAhUZfnAKHe14AP4QFjACegQIBxAC&url=https%3A%2F%2Ftore.tuhh.de%2Fbitstream%2F11420%2F1439%2F1%2FGPGPU_FFT_Ocean_Simulation.pdf&usg=AOvVaw0_z-QXC4vcYeIYLsP5WBfM
+// https://en.wikipedia.org/wiki/Butterfly_diagram
+// buttefly compute shader reference
+
+#include "/Engine/Private/Common.ush"
+
+//Texture should be replaced with not typed buffer (i.e. structured buffer etc.) because they are more efficent
+Texture2D<float4> PrecomputedData; //Twiddle factors/indices texture
+RWTexture2D<float4>        Buffer0;  //previous pass data
+Texture2D<float4> InputBuffer0;
+
+uint Step;
+uint Dir;
+
+
+float4 ComplexMult(float2 a, float2 b)
+{
+    return float4(a.r * b.r - a.g * b.g, a.r * b.g + a.g * b.r, 0, 0);
+}
+
+
+void HorizontalButterfly(in uint2 id)
+{
+    float4 data = PrecomputedData[uint2(Step, id.x)];
+    uint2 inputsIndices = (uint2) data.ba;
+    
+    Buffer0[id.xy] = (InputBuffer0[uint2(inputsIndices.x, id.y)] + ComplexMult(float2(data.r, -data.g), InputBuffer0[uint2(inputsIndices.y, id.y)].xy)) * (1.0 - 2.0 * ((id.x + id.y) % 2));
+}
+
+
+void VerticalButterfly(in uint2 id)
+{
+    float4 data = PrecomputedData[uint2(Step, id.y)];
+    uint2 inputsIndices = (uint2) data.ba;
+    
+    Buffer0[id.xy] = (InputBuffer0[uint2(id.x, inputsIndices.x)] + ComplexMult(float2(data.r, -data.g), InputBuffer0[uint2(id.x, inputsIndices.y)].xy)) * (1.0 - 2.0 * ((id.x + id.y) % 2));
+    
+}
+//Butterfly Kernel 
+[numthreads(8, 8, 1)]
+void ComputeButterflyCS(uint3 GlobalThreadIndex : SV_DispatchThreadID) 
+{
+	[branch]
+	if(Dir == 0)
+	{
+		HorizontalButterfly(GlobalThreadIndex.xy);
+	}
+	else
+	{
+		VerticalButterfly(GlobalThreadIndex.xy);
+	}	
+}

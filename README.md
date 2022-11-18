@@ -2,7 +2,7 @@
 An Compute Shader 4.26 updated FFT Ocean Simulation In UE4
 
 Video:
-![alt text](https://www.youtube.com/watch?v=UjRsnwchF0E&lc=UgyNedXensVkL1YMsJ94AaABAg.9O2Py8LA5yG9iSQ_TLQqQE)
+https://www.youtube.com/watch?v=UjRsnwchF0E&lc=UgyNedXensVkL1YMsJ94AaABAg.9O2Py8LA5yG9iSQ_TLQqQE
 
 The plugin includes:
 - Set of shaders that perform frequency Specturm, IFFT and Normal in Compute Shader and Pixel Shaders.

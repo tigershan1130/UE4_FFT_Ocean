@@ -5,7 +5,7 @@ Video:
 https://www.youtube.com/watch?v=UjRsnwchF0E&lc=UgyNedXensVkL1YMsJ94AaABAg.9O2Py8LA5yG9iSQ_TLQqQE
 
 The plugin includes:
-- Set of shaders that perform frequency Specturm, IFFT and Normal in Compute Shader and Pixel Shaders.
+- Set of shaders that perform frequency Specturm, IFFT(inverse fast fourier transform) and Normal in Compute Shader and Pixel Shaders.
 - Tessellation Enabled
 
 Todos:

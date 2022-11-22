@@ -17,7 +17,8 @@ Todos:
 ![alt text](https://github.com/tigershan1130/UE4_FFT_Ocean/blob/main/HighresScreenshot00000.png)
 
 Part of this project code is also been used alongside with newest most popular ocean plugin in UE marketplace
-Oceanology 6 update. If you want something that's more commerical: 
+Oceanology update. If you want something that's more commerical:
+(中国的朋友们， 大家多支持支持正版)
 ![image](https://user-images.githubusercontent.com/39791762/202949884-3b0d3246-2f3f-4cca-8eb2-95e80f1002b0.png)
 
 

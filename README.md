@@ -14,7 +14,7 @@ Todos:
 - add bouyancy physics
 - add interactive height field wave simulation with render texture and compute shader
 
-![alt text](https://github.com/tigershan1130/UE4_FFT_Ocean/blob/main/HighresScreenshot00000.png)
+![image](https://github.com/tigershan1130/UE4_FFT_Ocean/blob/main/HighresScreenshot00000.png)
 
 Part of this project code is also been used alongside with newest most popular ocean plugin in UE marketplace
 Oceanology update. If you want something that's more commerical:
